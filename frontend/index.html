@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fas fa-users"></i> Candidate Management System</h1>
+                <div class="header-stats" id="headerStats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total:</span>
+                        <span class="stat-value" id="totalCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Applied:</span>
+                        <span class="stat-value" id="appliedCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Interviewing:</span>
+                        <span class="stat-value" id="interviewingCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Hired:</span>
+                        <span class="stat-value" id="hiredCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Controls Section -->
+            <div class="controls-section">
+                <div class="search-filter-group">
+                    <!-- Search Bar -->
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search by name, email, skills, or position..."
+                            autocomplete="off"
+                        >
+                        <button id="clearSearch" class="clear-search" title="Clear search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="filter-box">
+                        <label for="statusFilter">
+                            <i class="fas fa-filter"></i> Filter by Status:
+                        </label>
+                        <select id="statusFilter">
+                            <option value="All">All Status</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Interviewing">Interviewing</option>
+                            <option value="Hired">Hired</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Add Candidate Button -->
+                <button id="addCandidateBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Candidate
+                </button>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading candidates...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+
+            <!-- Candidates Table -->
+            <div class="table-container">
+                <table class="candidates-table" id="candidatesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Skills</th>
+                            <th>Experience</th>
+                            <th>Position</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidatesTableBody">
+                        <!-- Candidates will be loaded here -->
+                    </tbody>
+                </table>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No candidates found</h3>
+                    <p>Add a new candidate to get started</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Add/Edit Candidate -->
+    <div id="candidateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Candidate</h2>
+                <button class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="candidateForm">
+                <input type="hidden" id="candidateId">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">
+                            Name <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            required
+                            placeholder="Enter full name"
+                            autocomplete="off"
+                        >
+                        <span class="error-text" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">
+                            Age <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="age" 
+                            name="age" 
+                            min="18" 
+                            max="100"
+                            required
+                            placeholder="Enter age"
+                        >
+                        <span class="error-text" id="ageError"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">
+                            Email <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            placeholder="candidate@example.com"
+                            autocomplete="off"
+                        >
+                        <span class="error-text" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone"
+                            placeholder="+1-234-567-8900"
+                        >
+                        <span class="error-text" id="phoneError"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="skills">Skills</label>
+                    <textarea 
+                        id="skills" 
+                        name="skills" 
+                        rows="3"
+                        placeholder="e.g., JavaScript, React, Node.js, PostgreSQL"
+                    ></textarea>
+                    <span class="error-text" id="skillsError"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="experience">Experience (Years)</label>
+                        <input 
+                            type="number" 
+                            id="experience" 
+                            name="experience" 
+                            min="0"
+                            placeholder="Years of experience"
+                        >
+                        <span class="error-text" id="experienceError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="applied_position">Applied Position</label>
+                        <input 
+                            type="text" 
+                            id="applied_position" 
+                            name="applied_position"
+                            placeholder="e.g., Full Stack Developer"
+                        >
+                        <span class="error-text" id="applied_positionError"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">
+                        Status <span class="required">*</span>
+                    </label>
+                    <select id="status" name="status" required>
+                        <option value="Applied">Applied</option>
+                        <option value="Interviewing">Interviewing</option>
+                        <option value="Hired">Hired</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <span class="error-text" id="statusError"></span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save"></i> Save Candidate
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Confirm Action</h2>
+                <button class="close-modal" id="closeConfirmModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmActionBtn">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Candidate Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
